@@ -1,0 +1,792 @@
+
+
+<!DOCTYPE html>
+<html lang="en" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/icon.png">
+  <link rel="icon" href="/img/icon.png">
+  
+    <link rel="canonical" href="http://planetarium1001.github.io/2024/11/17/2024-11-17_19:30:40_Neovim_从Vimscript向Lua的迁移/"/>
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Planetarium">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="从Vimscript向Lua的一次大胆尝试">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Neovim 从Vimscript向Lua的迁移">
+<meta property="og:url" content="http://planetarium1001.github.io/2024/11/17/2024-11-17_19:30:40_Neovim_%E4%BB%8EVimscript%E5%90%91Lua%E7%9A%84%E8%BF%81%E7%A7%BB/index.html">
+<meta property="og:site_name" content="PlanetariumのBlog">
+<meta property="og:description" content="从Vimscript向Lua的一次大胆尝试">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://planetarium1001.github.io/2024/11/17/2024-11-17_19:30:40_Neovim_%E4%BB%8EVimscript%E5%90%91Lua%E7%9A%84%E8%BF%81%E7%A7%BB/nvim_nvim-lspconfig.png">
+<meta property="article:published_time" content="2024-11-17T11:30:40.000Z">
+<meta property="article:modified_time" content="2024-11-17T16:09:40.833Z">
+<meta property="article:author" content="Planetarium">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://planetarium1001.github.io/2024/11/17/2024-11-17_19:30:40_Neovim_%E4%BB%8EVimscript%E5%90%91Lua%E7%9A%84%E8%BF%81%E7%A7%BB/nvim_nvim-lspconfig.png">
+  
+  
+    <meta name="referrer" content="no-referrer-when-downgrade">
+  
+  
+  <title>Neovim 从Vimscript向Lua的迁移 - PlanetariumのBlog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1749284_5i9bdhy70f8.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/c/font_1736178_k526ubmyhba.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"planetarium1001.github.io","root":"/","version":"1.9.8","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false},"umami":{"src":null,"website_id":null,"domains":null,"start_time":"2024-11-01T00:00:00.000Z","token":null,"api_server":null}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>PlanetariumのBlog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span>Home</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/" target="_self">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>Archives</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/" target="_self">
+                <i class="iconfont icon-category-fill"></i>
+                <span>Categories</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>Tags</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/" target="_self">
+                <i class="iconfont icon-user-fill"></i>
+                <span>About</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/2024/11/17/2024-11-17_19:30:40_Neovim_%E4%BB%8EVimscript%E5%90%91Lua%E7%9A%84%E8%BF%81%E7%A7%BB/nvim_nvim-lspconfig.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Neovim 从Vimscript向Lua的迁移"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-11-17 19:30" pubdate>
+          November 17, 2024 pm
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          3.9k words
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          33 mins
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="busuanzi_container_page_pv" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="busuanzi_value_page_pv"></span> views
+        </span>
+        
+
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">Neovim 从Vimscript向Lua的迁移</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1 id="Neovim-从Vimscript向Lua的迁移"><a href="#Neovim-从Vimscript向Lua的迁移" class="headerlink" title="Neovim 从Vimscript向Lua的迁移"></a>Neovim 从Vimscript向Lua的迁移</h1><p>近几年发现Neovim的许多插件都在向Lua迁移<br>前段时间看到了几个插件想去试试结果发现都是需要Lua支持的（笑<br>索性决定从Vimscript迁移到Lua<br>期间遇到了很多问题<br>索性写了这一篇Blog记录一下  </p>
+<p>文件结构  </p>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><code class="hljs stylus">nvim<br>├── init<span class="hljs-selector-class">.lua</span><br>├── lazy-lock<span class="hljs-selector-class">.json</span><br>├── lua<br>│   ├── config<br>│   │   ├── autocmds<span class="hljs-selector-class">.lua</span><br>│   │   ├── keymaps<span class="hljs-selector-class">.lua</span><br>│   │   ├── lazy<span class="hljs-selector-class">.lua</span><br>│   │   └── options<span class="hljs-selector-class">.lua</span><br>│   └── plugins<br>│       ├── auto-save<span class="hljs-selector-class">.lua</span><br>│       ├── bufferline<span class="hljs-selector-class">.lua</span><br>│       ├── dashboard-nvim<span class="hljs-selector-class">.lua</span><br>│       ├── flash<span class="hljs-selector-class">.lua</span><br>│       ├── gitsigns<span class="hljs-selector-class">.lua</span><br>│       ├── glance<span class="hljs-selector-class">.lua</span><br>│       ├── indent-blankline<span class="hljs-selector-class">.lua</span><br>│       ├── lspkind-nvim<span class="hljs-selector-class">.lua</span><br>│       ├── lspsaga<span class="hljs-selector-class">.lua</span><br>│       ├── lsp-status<span class="hljs-selector-class">.lua</span><br>│       ├── lualine-lsp-progress<span class="hljs-selector-class">.lua</span><br>│       ├── lualine<span class="hljs-selector-class">.lua</span><br>│       ├── luasnip<span class="hljs-selector-class">.lua</span><br>│       ├── markdown-preview<span class="hljs-selector-class">.lua</span><br>│       ├── mason-lspconfig<span class="hljs-selector-class">.lua</span><br>│       ├── mason<span class="hljs-selector-class">.lua</span><br>│       ├── modes<span class="hljs-selector-class">.lua</span><br>│       ├── nocie<span class="hljs-selector-class">.lua</span><br>│       ├── nvim-autopairs<span class="hljs-selector-class">.lua</span><br>│       ├── nvim-cmp<span class="hljs-selector-class">.lua</span><br>│       ├── nvim-colorizer<span class="hljs-selector-class">.lua</span><br>│       ├── nvim-drawer<span class="hljs-selector-class">.lua</span><br>│       ├── nvim-lspconfig<span class="hljs-selector-class">.lua</span><br>│       ├── nvim-tree<span class="hljs-selector-class">.lua</span><br>│       ├── nvim-treesitter<span class="hljs-selector-class">.lua</span><br>│       ├── nvim-web-devicons<span class="hljs-selector-class">.lua</span><br>│       ├── sentiment<span class="hljs-selector-class">.lua</span><br>│       ├── smoothcursor<span class="hljs-selector-class">.lua</span><br>│       ├── tokyonight<span class="hljs-selector-class">.lua</span><br>│       └── which-key<span class="hljs-selector-class">.lua</span><br>└── README<span class="hljs-selector-class">.md</span><br><br><span class="hljs-number">4</span> directories, <span class="hljs-number">37</span> files<br></code></pre></td></tr></table></figure>
+
+<p>也欢迎<code>clone</code>我的<code>nvim</code>配置使用<br><a target="_blank" rel="noopener" href="https://github.com/planetarium1001/nvim"><code>planetarium1001/nvim</code></a>  </p>
+<h3 id="Config"><a href="#Config" class="headerlink" title="Config"></a>Config</h3><p>Neovim使用Lua依赖<code>init.lua</code>文件，该文件位于<code>~/.config/nvim/</code>下面<br><code>init.lua</code>不与以往的<code>init.vim</code><br>语法发生了一些变化，以往使用<code>set</code>设置一些内容<br>在lua中需要使用<code>vim.opt</code>等参数设置<br>为了使得<code>init.lua</code>更加清晰简单，我选择在专门的目录写配置文件<br>而不是都写在<code>init.lua</code>中<br>所以<code>init.lua</code>文件中的内容就变成了如下：</p>
+<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs Lua"><span class="hljs-built_in">require</span>(<span class="hljs-string">&quot;config.lazy&quot;</span>)<br><span class="hljs-built_in">require</span>(<span class="hljs-string">&quot;config.keymaps&quot;</span>)<br><span class="hljs-built_in">require</span>(<span class="hljs-string">&quot;config.autocmds&quot;</span>)<br><span class="hljs-built_in">require</span>(<span class="hljs-string">&quot;config.options&quot;</span>)<br></code></pre></td></tr></table></figure>
+<p>其中<code>config.xxxx</code>在这里指的是文件位于<code>~/nvim/lua/config/xxx</code><br>这里采用<code>Lazy.nvim</code>作为插件管理<br>部分基础快捷键配置写在<code>lua/config/keymaps.lua</code>中<br>启动时默认光标位于上一次编辑文件位置，用<code>lua/config/autocmds.lua</code>实现<br>原先在Vimscript中用set配置的一些基础设置移动到了<code>lua/config/options.lua</code>中  </p>
+<p>这样的文件结构让我感觉会舒服一点（？）</p>
+<h3 id="Lazy-lua"><a href="#Lazy-lua" class="headerlink" title="Lazy.lua"></a>Lazy.lua</h3><p>Lazy.nvim的设置直接参考的<a target="_blank" rel="noopener" href="https://github.com/folke/lazy.nvim">Lazy.nvim的Github</a>  </p>
+<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><code class="hljs Lua"><span class="hljs-comment">-- Bootstrap lazy.nvim</span><br><span class="hljs-keyword">local</span> lazypath = vim.fn.stdpath(<span class="hljs-string">&quot;data&quot;</span>) .. <span class="hljs-string">&quot;/lazy/lazy.nvim&quot;</span><br><span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> (vim.uv <span class="hljs-keyword">or</span> vim.loop).fs_stat(lazypath) <span class="hljs-keyword">then</span><br>  <span class="hljs-keyword">local</span> lazyrepo = <span class="hljs-string">&quot;https://github.com/folke/lazy.nvim.git&quot;</span><br>  <span class="hljs-keyword">local</span> out = vim.fn.system(&#123; <span class="hljs-string">&quot;git&quot;</span>, <span class="hljs-string">&quot;clone&quot;</span>, <span class="hljs-string">&quot;--filter=blob:none&quot;</span>, <span class="hljs-string">&quot;--branch=stable&quot;</span>, lazyrepo, lazypath &#125;)<br>  <span class="hljs-keyword">if</span> vim.v.shell_error ~= <span class="hljs-number">0</span> <span class="hljs-keyword">then</span><br>    vim.api.nvim_echo(&#123;<br>      &#123; <span class="hljs-string">&quot;Failed to clone lazy.nvim:\n&quot;</span>, <span class="hljs-string">&quot;ErrorMsg&quot;</span> &#125;,<br>      &#123; out, <span class="hljs-string">&quot;WarningMsg&quot;</span> &#125;,<br>      &#123; <span class="hljs-string">&quot;\nPress any key to exit...&quot;</span> &#125;,<br>    &#125;, <span class="hljs-literal">true</span>, &#123;&#125;)<br>    vim.fn.getchar()<br>    <span class="hljs-built_in">os</span>.<span class="hljs-built_in">exit</span>(<span class="hljs-number">1</span>)<br>  <span class="hljs-keyword">end</span><br><span class="hljs-keyword">end</span><br>vim.opt.rtp:prepend(lazypath)<br><br><span class="hljs-comment">-- Make sure to setup `mapleader` and `maplocalleader` before</span><br><span class="hljs-comment">-- loading lazy.nvim so that mappings are correct.</span><br><span class="hljs-comment">-- This is also a good place to setup other settings (vim.opt)</span><br>vim.g.mapleader = <span class="hljs-string">&quot; &quot;</span><br>vim.g.maplocalleader = <span class="hljs-string">&quot;\\&quot;</span><br><br><span class="hljs-comment">-- Setup lazy.nvim</span><br><span class="hljs-built_in">require</span>(<span class="hljs-string">&quot;lazy&quot;</span>).setup(&#123;<br>  spec = &#123;<br>    <span class="hljs-comment">-- import your plugins</span><br>    &#123; import = <span class="hljs-string">&quot;plugins&quot;</span> &#125;,<br>  &#125;,<br>  <span class="hljs-comment">-- Configure any other settings here. See the documentation for more details.</span><br>  <span class="hljs-comment">-- colorscheme that will be used when installing plugins.</span><br>  install = &#123; colorscheme = &#123; <span class="hljs-string">&quot;habamax&quot;</span> &#125; &#125;,<br>  <span class="hljs-comment">-- automatically check for plugin updates</span><br>  checker = &#123; enabled = <span class="hljs-literal">true</span> &#125;,<br>&#125;)<br></code></pre></td></tr></table></figure>
+<p>其中{ import &#x3D; “plugins” }的目的是引入<code>lua/plugins</code>目录下的lua文件<br>用于插件管理<br>其余就没有再调整Lazy.nvim的配置了，都采用默认的了  </p>
+<h3 id="Keymaps"><a href="#Keymaps" class="headerlink" title="Keymaps"></a>Keymaps</h3><p>由于习惯使用大写的<code>H J K L</code>快速转跳<br>所以第一件事就是定义了<code>H J K L</code>的快捷键  </p>
+<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs Lua">vim.keymap.set(<span class="hljs-string">&quot;&quot;</span>, <span class="hljs-string">&quot;H&quot;</span>, <span class="hljs-string">&quot;10h&quot;</span>)<br>vim.keymap.set(<span class="hljs-string">&quot;&quot;</span>, <span class="hljs-string">&quot;J&quot;</span>, <span class="hljs-string">&quot;10j&quot;</span>)<br>vim.keymap.set(<span class="hljs-string">&quot;&quot;</span>, <span class="hljs-string">&quot;K&quot;</span>, <span class="hljs-string">&quot;10k&quot;</span>)<br>vim.keymap.set(<span class="hljs-string">&quot;&quot;</span>, <span class="hljs-string">&quot;L&quot;</span>, <span class="hljs-string">&quot;10l&quot;</span>)<br><br></code></pre></td></tr></table></figure>
+<p>使用<code>H J K L</code>代替<code>10h 10j 10k 10l</code><br>在Normal模式下面快速调整光标位置</p>
+<p>再就是没找到开关<code>Nvim-Tree</code>的api,只好在Keymaps单独定义了一个快捷键用于打开<code>Nvim-Tree</code>  </p>
+<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs Lua">vim.keymap.set(<span class="hljs-string">&quot;&quot;</span>, <span class="hljs-string">&quot;&lt;C-t&gt;&quot;</span>, <span class="hljs-string">&quot;:silent NvimTreeToggle&lt;CR&gt;&quot;</span>)<br></code></pre></td></tr></table></figure>
+
+<h3 id="autocmds-lua"><a href="#autocmds-lua" class="headerlink" title="autocmds.lua"></a>autocmds.lua</h3><figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs lua"><span class="hljs-keyword">return</span> &#123;<br>    vim.api.nvim_create_autocmd(<span class="hljs-string">&#x27;BufReadPost&#x27;</span>, &#123;<br>        pattern = &#123; <span class="hljs-string">&#x27;*&#x27;</span> &#125;,<br>        callback = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span></span><br>            <span class="hljs-keyword">local</span> line_index = vim.fn.line(<span class="hljs-string">&quot;&#x27;\&quot;&quot;</span>)<br>            <span class="hljs-keyword">local</span> max_line = vim.fn.line(<span class="hljs-string">&#x27;$&#x27;</span>)<br><br>            <span class="hljs-keyword">if</span> line_index &gt; <span class="hljs-number">1</span> <span class="hljs-keyword">and</span> line_index &lt;= max_line <span class="hljs-keyword">then</span><br>                vim.api.nvim_exec(<span class="hljs-string">&quot;normal! g&#x27;\&quot;&quot;</span>, <span class="hljs-literal">false</span>)<br>            <span class="hljs-keyword">end</span><br>        <span class="hljs-keyword">end</span>,<br>    &#125;)<br>&#125;<br><br></code></pre></td></tr></table></figure>
+<p>在网上抄来的代码（<br>可以在启动<code>Neovim</code>的时候自动恢复到上一次编辑文件的位置<br>在<code>init.lua</code>中引入就可以使用了<br>以前在<code>Vim</code>的时候就喜欢这个功能<br>我感觉还挺方便的（？）</p>
+<h3 id="options-lua"><a href="#options-lua" class="headerlink" title="options.lua"></a>options.lua</h3><figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><code class="hljs Lua">vim.opt.relativenumber = <span class="hljs-literal">true</span><br>vim.opt.number = <span class="hljs-literal">true</span><br>vim.opt.tabstop = <span class="hljs-number">4</span><br>vim.opt.shiftwidth = <span class="hljs-number">4</span><br>vim.opt.softtabstop = <span class="hljs-number">4</span><br>vim.opt.smartindent = <span class="hljs-literal">true</span><br>vim.opt.termguicolors = <span class="hljs-literal">true</span><br>vim.opt.scrolloff = <span class="hljs-number">10</span><br>vim.opt.sidescrolloff = <span class="hljs-number">5</span><br>vim.opt.expandtab = <span class="hljs-literal">true</span><br>vim.opt.wildmenu = <span class="hljs-literal">true</span><br>vim.opt.ignorecase = <span class="hljs-literal">true</span><br>vim.opt.spell = <span class="hljs-literal">true</span><br>vim.opt.spelllang = &#123; <span class="hljs-string">&#x27;en&#x27;</span>, <span class="hljs-string">&#x27;cjk&#x27;</span> &#125;<br>vim.opt.list = <span class="hljs-literal">true</span><br>vim.opt.autoread = <span class="hljs-literal">true</span><br>vim.opt.exrc = <span class="hljs-literal">true</span><br>vim.opt.splitbelow = <span class="hljs-literal">true</span><br>vim.opt.hlsearch = <span class="hljs-literal">true</span><br>vim.opt.incsearch = <span class="hljs-literal">true</span><br>vim.opt.showcmd = <span class="hljs-literal">true</span><br>vim.opt.et = <span class="hljs-literal">true</span><br>vim.opt.clipboard = <span class="hljs-string">&quot;unnamed&quot;</span><br>vim.opt.shortmess = atI<br>vim.wo.cursorline = <span class="hljs-literal">true</span><br>vim.wo.signcolumn = <span class="hljs-string">&quot;yes&quot;</span><br>vim.o.expandtab = <span class="hljs-literal">true</span><br>vim.bo.expandtab = <span class="hljs-literal">true</span><br>vim.o.autoindent = <span class="hljs-literal">true</span><br>vim.bo.autoindent = <span class="hljs-literal">true</span><br>vim.o.smartindent = <span class="hljs-literal">true</span><br>vim.o.ignorecase = <span class="hljs-literal">true</span><br>vim.o.smartcase = <span class="hljs-literal">true</span><br>vim.o.incsearch = <span class="hljs-literal">true</span><br>vim.o.autoread = <span class="hljs-literal">true</span><br>vim.bo.autoread = <span class="hljs-literal">true</span><br>vim.opt.listchars = &#123; trail = <span class="hljs-string">&quot;·&quot;</span>, precedes = <span class="hljs-string">&quot;←&quot;</span>, extends = <span class="hljs-string">&quot;→&quot;</span> &#125;<br><span class="hljs-comment">-- vim.scriptencoding = &quot;utf-8&quot;</span><br><br></code></pre></td></tr></table></figure>
+<p>主要设置了</p>
+<ul>
+<li>相对行号的显示</li>
+<li>Tab缩进使用4个空格</li>
+<li>屏幕上下端预览预留10行</li>
+<li>用<code>·</code>符号代替空格显示<br>其余的都大差不差，好像没什么特别需要说明的（？）<br>除了最后的<code>UTF-8</code>的问题，因为使用了强制使用<code>UTF-8</code>会导致有些文件的字符显示出现问题<br>索性就直接放弃了（<br>暂时没有发现有什么特别影响使用的地方</li>
+</ul>
+<h3 id="plugins"><a href="#plugins" class="headerlink" title="plugins"></a>plugins</h3><p>在<code>lua/plugins</code>文件夹下面我放入了一些插件配置文件<br>使用<code>Lazy.nvim</code>可以通过<code>&#123; &quot;import plugins&quot; &#125;</code>来让其管理plugins文件夹下面所有的插件配置文件<br>我觉得单独丢到一个文件夹按照插件名字作为文件名管理会比全部写在<code>Lazy.lua</code>文件里面清晰便于管理一些  </p>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><code class="hljs stylus">auto-save<span class="hljs-selector-class">.lua</span><br>bufferline<span class="hljs-selector-class">.lua</span><br>dashboard-nvim<span class="hljs-selector-class">.lua</span><br>flash<span class="hljs-selector-class">.lua</span><br>gitsigns<span class="hljs-selector-class">.lua</span><br>glance<span class="hljs-selector-class">.lua</span><br>indent-blankline<span class="hljs-selector-class">.lua</span><br>lsp-status<span class="hljs-selector-class">.lua</span><br>lspkind-nvim<span class="hljs-selector-class">.lua</span><br>lspsaga<span class="hljs-selector-class">.lua</span><br>lualine-lsp-progress<span class="hljs-selector-class">.lua</span><br>lualine<span class="hljs-selector-class">.lua</span><br>luasnip<span class="hljs-selector-class">.lua</span><br>markdown-preview<span class="hljs-selector-class">.lua</span><br>mason-lspconfig<span class="hljs-selector-class">.lua</span><br>mason<span class="hljs-selector-class">.lua</span><br>modes<span class="hljs-selector-class">.lua</span><br>nocie<span class="hljs-selector-class">.lua</span><br>nvim-autopairs<span class="hljs-selector-class">.lua</span><br>nvim-cmp<span class="hljs-selector-class">.lua</span><br>nvim-colorizer<span class="hljs-selector-class">.lua</span><br>nvim-drawer<span class="hljs-selector-class">.lua</span><br>nvim-lspconfig<span class="hljs-selector-class">.lua</span><br>nvim-tree<span class="hljs-selector-class">.lua</span><br>nvim-treesitter<span class="hljs-selector-class">.lua</span><br>nvim-web-devicons<span class="hljs-selector-class">.lua</span><br>sentiment<span class="hljs-selector-class">.lua</span><br>smoothcursor<span class="hljs-selector-class">.lua</span><br>tokyonight<span class="hljs-selector-class">.lua</span><br>which-key.lua<br></code></pre></td></tr></table></figure>
+<p>目前就使用了这一些插件  </p>
+<p>其中对于代码提示和自动补全采用的是<code>LSP</code>和<code>cmp</code><br>以前使用的<code>coc.nvim</code><br><code>Neovim</code>最近的几个版本中已经把<code>LSP</code>内置了<br>但是配置起来有些麻烦，折腾了好几天都无功而返<br>前几天突然看见一个项目<a target="_blank" rel="noopener" href="https://github.com/VonHeikemen/lsp-zero.nvim"><code>lsp-zero.nvim</code></a><br>用这个项目确实很快速方便的配置好了一个基础的<code>LSP</code>和’cmp’<br>有些进一步的配置，比如使用<code>Tab</code>键跳转补全内容，使用<code>Enter</code>键选择补全内容的设置在他的文档里面都有提到<br>只需要无脑的复制粘贴就行了（笑<br>其他的一些设置，比如一些符号标注的设置可以去<a target="_blank" rel="noopener" href="https://github.com/neovim/nvim-lspconfig"><code>nvim-lspconfig</code></a>和<a target="_blank" rel="noopener" href="https://github.com/hrsh7th/nvim-cmp"><code>nvim-cmp</code></a>的文档里面找，然后丢进去<br>其他的插件更多的是对于<code>Neovim</code>的美化<br>比如主题<code>tokonight</code>，提示和Neovim cmd的美化<code>noice</code>等等之类的  </p>
+<h4 id="lsp-zero-nvim"><a href="#lsp-zero-nvim" class="headerlink" title="lsp-zero.nvim"></a>lsp-zero.nvim</h4><p>无论怎么样我在对于<a target="_blank" rel="noopener" href="https://github.com/neovim/nvim-lspconfig"><code>nvim-lspconfig</code></a>和<a target="_blank" rel="noopener" href="https://github.com/hrsh7th/nvim-cmp"><code>nvim-cmp</code></a>的配置踩了很多坑<br>花了三四天都没有装好，所以决定在这里把我的配置经历写下来<br>或许是这篇文章最有价值的地方（？）</p>
+<blockquote>
+<p>如果你对于下述内容没有自己操作的把握或者想直接抄作业，我会把我的完整配置放在这部分的最后<br>然后标明我修改的部分，可以自行修改使用</p>
+</blockquote>
+<p>鉴于<code>nvim-lspconfig</code>和<code>nvim-cmp</code>的Github配置文档比较复杂而且我没有太看懂（<br>所以我直接选择了用<a target="_blank" rel="noopener" href="https://github.com/VonHeikemen/lsp-zero.nvim"><code>lsp-zero.nvim</code></a>  </p>
+<p>首先先使用包管理安装<code>lsp-zero.nvim</code><br>这里建议直接参照<code>lsp-zero.nvim</code>的官方文档<a target="_blank" rel="noopener" href="https://lsp-zero.netlify.app/docs/getting-started.html">Getting-Started</a><br>在<code>Installing</code>中有提到几种主流包管理的安装方式<br>这里我用的是<code>Lazy.nvim</code>，为了后续的进一步配置，我用的是他给的<a target="_blank" rel="noopener" href="https://lsp-zero.netlify.app/docs/guide/lazy-loading-with-lazy-nvim"><code>Advance config</code></a>安装的代码<br>在这里面他有提供两种针对<code>LSP</code>服务管理的不同配置代码<br>因为可以使用<a target="_blank" rel="noopener" href="https://github.com/williamboman/mason.nvim"><code>mason.nvim</code></a>更加方便且可视的管理<code>LSP</code>服务<br>所以我使用了<code>automatic setup of LSP servers</code>的代码  </p>
+<h5 id="按照文档安装"><a href="#按照文档安装" class="headerlink" title="按照文档安装"></a>按照文档安装</h5><figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br></pre></td><td class="code"><pre><code class="hljs Lua"><span class="hljs-keyword">return</span> &#123;<br>  &#123;<br>    <span class="hljs-string">&#x27;williamboman/mason.nvim&#x27;</span>,<br>    lazy = <span class="hljs-literal">false</span>,<br>    opts = &#123;&#125;,<br>  &#125;,<br><br>  <span class="hljs-comment">-- Autocompletion</span><br>  &#123;<br>    <span class="hljs-string">&#x27;hrsh7th/nvim-cmp&#x27;</span>,<br>    event = <span class="hljs-string">&#x27;InsertEnter&#x27;</span>,<br>    <span class="hljs-built_in">config</span> = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span></span><br>      <span class="hljs-keyword">local</span> cmp = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;cmp&#x27;</span>)<br><br>      cmp.setup(&#123;<br>        sources = &#123;<br>          &#123;name = <span class="hljs-string">&#x27;nvim_lsp&#x27;</span>&#125;,<br>        &#125;,<br>        mapping = cmp.mapping.preset.<span class="hljs-built_in">insert</span>(&#123;<br>          [<span class="hljs-string">&#x27;&lt;C-Space&gt;&#x27;</span>] = cmp.mapping.complete(),<br>          [<span class="hljs-string">&#x27;&lt;C-u&gt;&#x27;</span>] = cmp.mapping.scroll_docs(<span class="hljs-number">-4</span>),<br>          [<span class="hljs-string">&#x27;&lt;C-d&gt;&#x27;</span>] = cmp.mapping.scroll_docs(<span class="hljs-number">4</span>),<br>        &#125;),<br>        snippet = &#123;<br>          expand = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(args)</span></span><br>            vim.snippet.expand(args.body)<br>          <span class="hljs-keyword">end</span>,<br>        &#125;,<br>      &#125;)<br>    <span class="hljs-keyword">end</span><br>  &#125;,<br><br>  <span class="hljs-comment">-- LSP</span><br>  &#123;<br>    <span class="hljs-string">&#x27;neovim/nvim-lspconfig&#x27;</span>,<br>    cmd = &#123;<span class="hljs-string">&#x27;LspInfo&#x27;</span>, <span class="hljs-string">&#x27;LspInstall&#x27;</span>, <span class="hljs-string">&#x27;LspStart&#x27;</span>&#125;,<br>    event = &#123;<span class="hljs-string">&#x27;BufReadPre&#x27;</span>, <span class="hljs-string">&#x27;BufNewFile&#x27;</span>&#125;,<br>    dependencies = &#123;<br>      &#123;<span class="hljs-string">&#x27;hrsh7th/cmp-nvim-lsp&#x27;</span>&#125;,<br>      &#123;<span class="hljs-string">&#x27;williamboman/mason.nvim&#x27;</span>&#125;,<br>      &#123;<span class="hljs-string">&#x27;williamboman/mason-lspconfig.nvim&#x27;</span>&#125;,<br>    &#125;,<br>    init = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span></span><br>      <span class="hljs-comment">-- Reserve a space in the gutter</span><br>      <span class="hljs-comment">-- This will avoid an annoying layout shift in the screen</span><br>      vim.opt.signcolumn = <span class="hljs-string">&#x27;yes&#x27;</span><br>    <span class="hljs-keyword">end</span>,<br>    <span class="hljs-built_in">config</span> = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span></span><br>      <span class="hljs-keyword">local</span> lsp_defaults = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;lspconfig&#x27;</span>).util.default_config<br><br>      <span class="hljs-comment">-- Add cmp_nvim_lsp capabilities settings to lspconfig</span><br>      <span class="hljs-comment">-- This should be executed before you configure any language server</span><br>      lsp_defaults.capabilities = vim.tbl_deep_extend(<br>        <span class="hljs-string">&#x27;force&#x27;</span>,<br>        lsp_defaults.capabilities,<br>        <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;cmp_nvim_lsp&#x27;</span>).default_capabilities()<br>      )<br><br>      <span class="hljs-comment">-- LspAttach is where you enable features that only work</span><br>      <span class="hljs-comment">-- if there is a language server active in the file</span><br>      vim.api.nvim_create_autocmd(<span class="hljs-string">&#x27;LspAttach&#x27;</span>, &#123;<br>        desc = <span class="hljs-string">&#x27;LSP actions&#x27;</span>,<br>        callback = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(event)</span></span><br>          <span class="hljs-keyword">local</span> opts = &#123;buffer = event.buf&#125;<br><br>          vim.keymap.set(<span class="hljs-string">&#x27;n&#x27;</span>, <span class="hljs-string">&#x27;K&#x27;</span>, <span class="hljs-string">&#x27;&lt;cmd&gt;lua vim.lsp.buf.hover()&lt;cr&gt;&#x27;</span>, opts)<br>          vim.keymap.set(<span class="hljs-string">&#x27;n&#x27;</span>, <span class="hljs-string">&#x27;gd&#x27;</span>, <span class="hljs-string">&#x27;&lt;cmd&gt;lua vim.lsp.buf.definition()&lt;cr&gt;&#x27;</span>, opts)<br>          vim.keymap.set(<span class="hljs-string">&#x27;n&#x27;</span>, <span class="hljs-string">&#x27;gD&#x27;</span>, <span class="hljs-string">&#x27;&lt;cmd&gt;lua vim.lsp.buf.declaration()&lt;cr&gt;&#x27;</span>, opts)<br>          vim.keymap.set(<span class="hljs-string">&#x27;n&#x27;</span>, <span class="hljs-string">&#x27;gi&#x27;</span>, <span class="hljs-string">&#x27;&lt;cmd&gt;lua vim.lsp.buf.implementation()&lt;cr&gt;&#x27;</span>, opts)<br>          vim.keymap.set(<span class="hljs-string">&#x27;n&#x27;</span>, <span class="hljs-string">&#x27;go&#x27;</span>, <span class="hljs-string">&#x27;&lt;cmd&gt;lua vim.lsp.buf.type_definition()&lt;cr&gt;&#x27;</span>, opts)<br>          vim.keymap.set(<span class="hljs-string">&#x27;n&#x27;</span>, <span class="hljs-string">&#x27;gr&#x27;</span>, <span class="hljs-string">&#x27;&lt;cmd&gt;lua vim.lsp.buf.references()&lt;cr&gt;&#x27;</span>, opts)<br>          vim.keymap.set(<span class="hljs-string">&#x27;n&#x27;</span>, <span class="hljs-string">&#x27;gs&#x27;</span>, <span class="hljs-string">&#x27;&lt;cmd&gt;lua vim.lsp.buf.signature_help()&lt;cr&gt;&#x27;</span>, opts)<br>          vim.keymap.set(<span class="hljs-string">&#x27;n&#x27;</span>, <span class="hljs-string">&#x27;&lt;F2&gt;&#x27;</span>, <span class="hljs-string">&#x27;&lt;cmd&gt;lua vim.lsp.buf.rename()&lt;cr&gt;&#x27;</span>, opts)<br>          vim.keymap.set(&#123;<span class="hljs-string">&#x27;n&#x27;</span>, <span class="hljs-string">&#x27;x&#x27;</span>&#125;, <span class="hljs-string">&#x27;&lt;F3&gt;&#x27;</span>, <span class="hljs-string">&#x27;&lt;cmd&gt;lua vim.lsp.buf.format(&#123;async = true&#125;)&lt;cr&gt;&#x27;</span>, opts)<br>          vim.keymap.set(<span class="hljs-string">&#x27;n&#x27;</span>, <span class="hljs-string">&#x27;&lt;F4&gt;&#x27;</span>, <span class="hljs-string">&#x27;&lt;cmd&gt;lua vim.lsp.buf.code_action()&lt;cr&gt;&#x27;</span>, opts)<br>        <span class="hljs-keyword">end</span>,<br>      &#125;)<br><br>      <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;mason-lspconfig&#x27;</span>).setup(&#123;<br>        ensure_installed = &#123;&#125;,<br>        handlers = &#123;<br>          <span class="hljs-comment">-- this first function is the &quot;default handler&quot;</span><br>          <span class="hljs-comment">-- it applies to every language server without a &quot;custom handler&quot;</span><br>          <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(server_name)</span></span><br>            <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;lspconfig&#x27;</span>)[server_name].setup(&#123;&#125;)<br>          <span class="hljs-keyword">end</span>,<br>        &#125;<br>      &#125;)<br>    <span class="hljs-keyword">end</span><br>  &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>由于我是在<code>Lazy.nvim</code>中直接导入一个文件夹的全部文件分别管理插件的<br>所以需要在官方给的这部分代码前面补上一个<code>return</code><br>此外由于我使用<code>K</code>来快速移动光标，所以需要将<code>vim.keymap.set(&#39;n&#39;, &#39;K&#39;, &#39;&lt;cmd&gt;lua vim.lsp.buf.hover()&lt;cr&gt;&#39;, opts)</code>中的K修改为其他按键<br>其中的快捷键和部分配置按照个人续修进行修改就行  </p>
+<p>到这里通过运行<code>Lazy</code>自动安装之后我们就拥有的最基础的<code>LSP</code>和<code>cmp</code>功能<br>但是显然这些是不够用的  </p>
+<p>首先给<code>mason.nvim</code>加一些<code>Nerdfont</code>用来方便查看<code>LSP</code>服务的状态  </p>
+<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs Lua">ui = &#123;<br>    icons = &#123;<br>        package_installed = <span class="hljs-string">&quot;✓&quot;</span>,<br>        package_pending = <span class="hljs-string">&quot;➜&quot;</span>,<br>        package_uninstalled = <span class="hljs-string">&quot;✗&quot;</span><br>    &#125;<br>&#125;<br><br></code></pre></td></tr></table></figure>
+<p>将上述内容丢入<code>require(&#39;mason&#39;).setup(&#123;&#125;)</code>函数中<br>这样就可以在<code>mason</code>界面显示这些Nerdfont符号  </p>
+<p>然后修改<code>cmp</code>配置<br>加入关于<code>Tab</code>和<code>Enter</code>键的支持<br>这里需要<a target="_blank" rel="noopener" href="https://github.com/L3MON4D3/LuaSnip"><code>LuaSnip</code></a>提供<code>Super Tab</code>的支持<br>安装方法直接参照他的文档也可以<br>或者在<code>plugins</code>文件夹下面新建一个<code>luaship.lua</code>文件，加上以下内容  </p>
+<figure class="highlight applescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs applescript"><span class="hljs-built_in">return</span> &#123;<br>	<span class="hljs-string">&quot;L3MON4D3/LuaSnip&quot;</span>,<br>	<span class="hljs-comment">-- follow latest release.</span><br>	<span class="hljs-built_in">version</span> = <span class="hljs-string">&quot;v2.*&quot;</span>, <span class="hljs-comment">-- Replace &lt;CurrentMajor&gt; by the latest released major (first number of latest release)</span><br>	<span class="hljs-comment">-- install jsregexp (optional!).</span><br>	build = <span class="hljs-string">&quot;make install_jsregexp&quot;</span><br>&#125;<br></code></pre></td></tr></table></figure>
+<p>当然你也可以用普通的<code>Tab</code><br>具体的文档可以在官方文档的<a target="_blank" rel="noopener" href="https://lsp-zero.netlify.app/docs/autocomplete.html#use-enter-to-confirm-completion">这里</a>找到<br><code>普通Tab</code></p>
+<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs Lua"><span class="hljs-comment">-- Simple tab complete</span><br>[<span class="hljs-string">&#x27;&lt;Tab&gt;&#x27;</span>] = cmp.mapping(<span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(fallback)</span></span><br>  <span class="hljs-keyword">local</span> col = vim.fn.col(<span class="hljs-string">&#x27;.&#x27;</span>) - <span class="hljs-number">1</span><br><br>  <span class="hljs-keyword">if</span> cmp.visible() <span class="hljs-keyword">then</span><br>    cmp.select_next_item(&#123;behavior = <span class="hljs-string">&#x27;select&#x27;</span>&#125;)<br>  <span class="hljs-keyword">elseif</span> col == <span class="hljs-number">0</span> <span class="hljs-keyword">or</span> vim.fn.getline(<span class="hljs-string">&#x27;.&#x27;</span>):<span class="hljs-built_in">sub</span>(col, col):<span class="hljs-built_in">match</span>(<span class="hljs-string">&#x27;%s&#x27;</span>) <span class="hljs-keyword">then</span><br>    fallback()<br>  <span class="hljs-keyword">else</span><br>    cmp.complete()<br>  <span class="hljs-keyword">end</span><br><span class="hljs-keyword">end</span>, &#123;<span class="hljs-string">&#x27;i&#x27;</span>, <span class="hljs-string">&#x27;s&#x27;</span>&#125;),<br><br><span class="hljs-comment">-- Go to previous item</span><br>[<span class="hljs-string">&#x27;&lt;S-Tab&gt;&#x27;</span>] = cmp.mapping.select_prev_item(&#123;behavior = <span class="hljs-string">&#x27;select&#x27;</span>&#125;),<br></code></pre></td></tr></table></figure>
+<p><code>Super Tab</code></p>
+<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><code class="hljs Lua"><span class="hljs-comment">-- Super tab</span><br>[<span class="hljs-string">&#x27;&lt;Tab&gt;&#x27;</span>] = cmp.mapping(<span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(fallback)</span></span><br>  <span class="hljs-keyword">local</span> luasnip = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;luasnip&#x27;</span>)<br>  <span class="hljs-keyword">local</span> col = vim.fn.col(<span class="hljs-string">&#x27;.&#x27;</span>) - <span class="hljs-number">1</span><br><br>  <span class="hljs-keyword">if</span> cmp.visible() <span class="hljs-keyword">then</span><br>    cmp.select_next_item(&#123;behavior = <span class="hljs-string">&#x27;select&#x27;</span>&#125;)<br>  <span class="hljs-keyword">elseif</span> luasnip.expand_or_locally_jumpable() <span class="hljs-keyword">then</span><br>    luasnip.expand_or_jump()<br>  <span class="hljs-keyword">elseif</span> col == <span class="hljs-number">0</span> <span class="hljs-keyword">or</span> vim.fn.getline(<span class="hljs-string">&#x27;.&#x27;</span>):<span class="hljs-built_in">sub</span>(col, col):<span class="hljs-built_in">match</span>(<span class="hljs-string">&#x27;%s&#x27;</span>) <span class="hljs-keyword">then</span><br>    fallback()<br>  <span class="hljs-keyword">else</span><br>    cmp.complete()<br>  <span class="hljs-keyword">end</span><br><span class="hljs-keyword">end</span>, &#123;<span class="hljs-string">&#x27;i&#x27;</span>, <span class="hljs-string">&#x27;s&#x27;</span>&#125;),<br><br><span class="hljs-comment">-- Super shift tab</span><br>[<span class="hljs-string">&#x27;&lt;S-Tab&gt;&#x27;</span>] = cmp.mapping(<span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(fallback)</span></span><br>  <span class="hljs-keyword">local</span> luasnip = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;luasnip&#x27;</span>)<br><br>  <span class="hljs-keyword">if</span> cmp.visible() <span class="hljs-keyword">then</span><br>    cmp.select_prev_item(&#123;behavior = <span class="hljs-string">&#x27;select&#x27;</span>&#125;)<br>  <span class="hljs-keyword">elseif</span> luasnip.locally_jumpable(<span class="hljs-number">-1</span>) <span class="hljs-keyword">then</span><br>    luasnip.jump(<span class="hljs-number">-1</span>)<br>  <span class="hljs-keyword">else</span><br>    fallback()<br>  <span class="hljs-keyword">end</span><br><span class="hljs-keyword">end</span>, &#123;<span class="hljs-string">&#x27;i&#x27;</span>, <span class="hljs-string">&#x27;s&#x27;</span>&#125;),<br></code></pre></td></tr></table></figure>
+<p>普通Tab和超级Tab二选一就可以了<br><code>Enter</code></p>
+<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs Lua">[<span class="hljs-string">&#x27;&lt;CR&gt;&#x27;</span>] = cmp.mapping.confirm(&#123;<span class="hljs-built_in">select</span> = <span class="hljs-literal">false</span>&#125;),<br></code></pre></td></tr></table></figure>
+<p>这些内容丢进<code>cmp.setup()</code>函数的<code>mapping = mapping.preset.insert()</code>里面就可以了  </p>
+<p>现在拥有了基础的按键配置就可以正常使用这些功能了  </p>
+<p>下面贴出我的配置文件  </p>
+<h5 id="我的配置"><a href="#我的配置" class="headerlink" title="我的配置"></a>我的配置</h5><p><code>plugins/nvim-lspconfig.lua</code>  </p>
+<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br></pre></td><td class="code"><pre><code class="hljs Lua"><span class="hljs-keyword">return</span> &#123;<br>  <span class="hljs-comment">-- LSP</span><br>  &#123;<br>    <span class="hljs-string">&#x27;neovim/nvim-lspconfig&#x27;</span>,<br>    cmd = &#123;<span class="hljs-string">&#x27;LspInfo&#x27;</span>, <span class="hljs-string">&#x27;LspInstall&#x27;</span>, <span class="hljs-string">&#x27;LspStart&#x27;</span>&#125;,<br>    event = &#123;<span class="hljs-string">&#x27;BufReadPre&#x27;</span>, <span class="hljs-string">&#x27;BufNewFile&#x27;</span>&#125;,<br>    dependencies = &#123;<br>      &#123;<span class="hljs-string">&#x27;hrsh7th/cmp-nvim-lsp&#x27;</span>&#125;,<br>      &#123;<span class="hljs-string">&#x27;williamboman/mason.nvim&#x27;</span>&#125;,<br>      &#123;<span class="hljs-string">&#x27;williamboman/mason-lspconfig.nvim&#x27;</span>&#125;,<br>    &#125;,<br>    init = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span></span><br>      <span class="hljs-comment">-- Reserve a space in the gutter</span><br>      <span class="hljs-comment">-- This will avoid an annoying layout shift in the screen</span><br>      vim.opt.signcolumn = <span class="hljs-string">&#x27;yes&#x27;</span><br>    <span class="hljs-keyword">end</span>,<br>    <span class="hljs-built_in">config</span> = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span></span><br>      <span class="hljs-keyword">local</span> lsp_defaults = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;lspconfig&#x27;</span>).util.default_config<br><br>      <span class="hljs-comment">-- Add cmp_nvim_lsp capabilities settings to lspconfig</span><br>      <span class="hljs-comment">-- This should be executed before you configure any language server</span><br>      lsp_defaults.capabilities = vim.tbl_deep_extend(<br>        <span class="hljs-string">&#x27;force&#x27;</span>,<br>        lsp_defaults.capabilities,<br>        <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;cmp_nvim_lsp&#x27;</span>).default_capabilities()<br>      )<br><br>      <span class="hljs-comment">-- LspAttach is where you enable features that only work</span><br>      <span class="hljs-comment">-- if there is a language server active in the file</span><br>      vim.api.nvim_create_autocmd(<span class="hljs-string">&#x27;LspAttach&#x27;</span>, &#123;<br>        desc = <span class="hljs-string">&#x27;LSP actions&#x27;</span>,<br>        callback = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(event)</span></span><br>          <span class="hljs-keyword">local</span> opts = &#123;buffer = event.buf&#125;<br><br>          vim.keymap.set(<span class="hljs-string">&#x27;n&#x27;</span>, <span class="hljs-string">&#x27;gk&#x27;</span>, <span class="hljs-string">&#x27;&lt;cmd&gt;lua vim.lsp.buf.hover()&lt;cr&gt;&#x27;</span>, opts)<br>          vim.keymap.set(<span class="hljs-string">&#x27;n&#x27;</span>, <span class="hljs-string">&#x27;gd&#x27;</span>, <span class="hljs-string">&#x27;&lt;cmd&gt;lua vim.lsp.buf.definition()&lt;cr&gt;&#x27;</span>, opts)<br>          vim.keymap.set(<span class="hljs-string">&#x27;n&#x27;</span>, <span class="hljs-string">&#x27;gD&#x27;</span>, <span class="hljs-string">&#x27;&lt;cmd&gt;lua vim.lsp.buf.declaration()&lt;cr&gt;&#x27;</span>, opts)<br>          vim.keymap.set(<span class="hljs-string">&#x27;n&#x27;</span>, <span class="hljs-string">&#x27;gi&#x27;</span>, <span class="hljs-string">&#x27;&lt;cmd&gt;lua vim.lsp.buf.implementation()&lt;cr&gt;&#x27;</span>, opts)<br>          vim.keymap.set(<span class="hljs-string">&#x27;n&#x27;</span>, <span class="hljs-string">&#x27;go&#x27;</span>, <span class="hljs-string">&#x27;&lt;cmd&gt;lua vim.lsp.buf.type_definition()&lt;cr&gt;&#x27;</span>, opts)<br>          vim.keymap.set(<span class="hljs-string">&#x27;n&#x27;</span>, <span class="hljs-string">&#x27;gr&#x27;</span>, <span class="hljs-string">&#x27;&lt;cmd&gt;lua vim.lsp.buf.references()&lt;cr&gt;&#x27;</span>, opts)<br>          vim.keymap.set(<span class="hljs-string">&#x27;n&#x27;</span>, <span class="hljs-string">&#x27;gs&#x27;</span>, <span class="hljs-string">&#x27;&lt;cmd&gt;lua vim.lsp.buf.signature_help()&lt;cr&gt;&#x27;</span>, opts)<br>          vim.keymap.set(<span class="hljs-string">&#x27;n&#x27;</span>, <span class="hljs-string">&#x27;&lt;F2&gt;&#x27;</span>, <span class="hljs-string">&#x27;&lt;cmd&gt;lua vim.lsp.buf.rename()&lt;cr&gt;&#x27;</span>, opts)<br>          vim.keymap.set(&#123;<span class="hljs-string">&#x27;n&#x27;</span>, <span class="hljs-string">&#x27;x&#x27;</span>&#125;, <span class="hljs-string">&#x27;&lt;F3&gt;&#x27;</span>, <span class="hljs-string">&#x27;&lt;cmd&gt;lua vim.lsp.buf.format(&#123;async = true&#125;)&lt;cr&gt;&#x27;</span>, opts)<br>          vim.keymap.set(<span class="hljs-string">&#x27;n&#x27;</span>, <span class="hljs-string">&#x27;&lt;F4&gt;&#x27;</span>, <span class="hljs-string">&#x27;&lt;cmd&gt;lua vim.lsp.buf.code_action()&lt;cr&gt;&#x27;</span>, opts)<br>        <span class="hljs-keyword">end</span>,<br>      &#125;)<br><br>      <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;mason-lspconfig&#x27;</span>).setup(&#123;<br>        ensure_installed = &#123;&#125;,<br>        handlers = &#123;<br>          <span class="hljs-comment">-- this first function is the &quot;default handler&quot;</span><br>          <span class="hljs-comment">-- it applies to every language server without a &quot;custom handler&quot;</span><br>          <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(server_name)</span></span><br>            <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;lspconfig&#x27;</span>)[server_name].setup(&#123;&#125;)<br>          <span class="hljs-keyword">end</span>,<br>        &#125;<br>      &#125;)<br>      <span class="hljs-keyword">local</span> signs = &#123;<br>        &#123; name = <span class="hljs-string">&quot;DiagnosticSignError&quot;</span>, text = <span class="hljs-string">&quot;&quot;</span> &#125;,<br>        &#123; name = <span class="hljs-string">&quot;DiagnosticSignWarn&quot;</span>, text = <span class="hljs-string">&quot;&quot;</span> &#125;,<br>        &#123; name = <span class="hljs-string">&quot;DiagnosticSignHint&quot;</span>, text = <span class="hljs-string">&quot;&quot;</span> &#125;,<br>        &#123; name = <span class="hljs-string">&quot;DiagnosticSignInfo&quot;</span>, text = <span class="hljs-string">&quot;&quot;</span> &#125;,<br>      &#125;<br><br>      <span class="hljs-keyword">for</span> _, sign <span class="hljs-keyword">in</span> <span class="hljs-built_in">ipairs</span>(signs) <span class="hljs-keyword">do</span><br>        vim.fn.sign_define(sign.name, &#123; texthl = sign.name, text = sign.text, numhl = <span class="hljs-string">&quot;&quot;</span> &#125;)<br>      <span class="hljs-keyword">end</span><br><br>      <span class="hljs-comment">-- set the style of lsp info</span><br>      <span class="hljs-keyword">local</span> <span class="hljs-built_in">config</span> = &#123;<br>        <span class="hljs-comment">-- disable virtual text</span><br>        <span class="hljs-comment">-- the message show after the current line.</span><br>        virtual_text = <span class="hljs-literal">false</span>,<br>        <span class="hljs-comment">-- show signs</span><br>        signs = &#123;<br>          active = signs,<br>        &#125;,<br>        update_in_insert = <span class="hljs-literal">true</span>,<br>        underline = <span class="hljs-literal">true</span>,<br>        severity_sort = <span class="hljs-literal">true</span>,<br>        float = &#123;<br>          focusable = <span class="hljs-literal">false</span>,<br>          style = <span class="hljs-string">&quot;minimal&quot;</span>,<br>          border = <span class="hljs-string">&quot;rounded&quot;</span>,<br>          source = <span class="hljs-string">&quot;always&quot;</span>,<br>          header = <span class="hljs-string">&quot;&quot;</span>,<br>          prefix = <span class="hljs-string">&quot;&quot;</span>,<br>        &#125;,<br>      &#125;<br><br>      vim.diagnostic.<span class="hljs-built_in">config</span>(<span class="hljs-built_in">config</span>)<br><br>      <span class="hljs-comment">-- set the popup window border</span><br>      vim.lsp.handlers[<span class="hljs-string">&quot;textDocument/hover&quot;</span>] = vim.lsp.with(vim.lsp.handlers.hover, &#123;<br>        border = <span class="hljs-string">&quot;rounded&quot;</span>,<br>      &#125;)<br><br>      vim.lsp.handlers[<span class="hljs-string">&quot;textDocument/signatureHelp&quot;</span>] = vim.lsp.with(vim.lsp.handlers.signature_help, &#123;<br>        border = <span class="hljs-string">&quot;rounded&quot;</span>,<br>      &#125;)<br><br>    <span class="hljs-keyword">end</span><br>  &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+<p><code>plugins/mason.lua</code>  </p>
+<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs Lua"><span class="hljs-keyword">return</span>&#123;<br>    <span class="hljs-string">&#x27;williamboman/mason.nvim&#x27;</span>,<br>    lazy = <span class="hljs-literal">false</span>,<br>    opts = &#123;&#125;,<br>    <span class="hljs-built_in">config</span> = <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">()</span></span><br>        <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;mason&#x27;</span>).setup(&#123;<br>            ui = &#123;<br>                icons = &#123;<br>                    package_installed = <span class="hljs-string">&quot;✓&quot;</span>,<br>                    package_pending = <span class="hljs-string">&quot;➜&quot;</span>,<br>                    package_uninstalled = <span class="hljs-string">&quot;✗&quot;</span><br>                &#125;<br>            &#125;<br>        &#125;)<br><br>    <span class="hljs-keyword">end</span><br>&#125;<br></code></pre></td></tr></table></figure>
+<p><code>plugins/mason-lspconfig.lua</code></p>
+<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs Lua"><span class="hljs-keyword">return</span> &#123;<br>    <span class="hljs-string">&quot;williamboman/mason-lspconfig.nvim&quot;</span>,<br>    dependenice = &#123;<br>    <span class="hljs-string">&quot;williamboman/mason.nvim&quot;</span>,<br>    <span class="hljs-string">&quot;neovim/nvim-lspconfig&quot;</span>,<br>    &#125;,<br>    <span class="hljs-built_in">config</span> = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span></span><br>        <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;mason-lspconfig&#x27;</span>).setup(&#123;<br>          <span class="hljs-comment">-- Replace the language servers listed here </span><br>          <span class="hljs-comment">-- with the ones you want to install</span><br>          ensure_installed = &#123;<span class="hljs-string">&#x27;lua_ls&#x27;</span>, <span class="hljs-string">&#x27;rust_analyzer&#x27;</span>, <span class="hljs-string">&#x27;pylsp&#x27;</span>&#125;,<br>          handlers = &#123;<br>            <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(server_name)</span></span><br>              <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;lspconfig&#x27;</span>)[server_name].setup(&#123;&#125;)<br>            <span class="hljs-keyword">end</span>,<br>          &#125;,<br>        &#125;)<br><br>    <span class="hljs-keyword">end</span><br>&#125;<br></code></pre></td></tr></table></figure>
+<p><code>plugins/nvim-cmp.lua</code>  </p>
+<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br></pre></td><td class="code"><pre><code class="hljs Lua"><span class="hljs-comment">-- Autocompletion</span><br><span class="hljs-keyword">return</span> &#123;<br>    <span class="hljs-string">&#x27;hrsh7th/nvim-cmp&#x27;</span>,<br>    event = &#123; <span class="hljs-string">&#x27;InsertEnter&#x27;</span>, <span class="hljs-string">&#x27;CmdlineEnter&#x27;</span> &#125;,<br>    dependencies = &#123;<br>        <span class="hljs-string">&#x27;neovim/nvim-lspconfig&#x27;</span>,<br>        <span class="hljs-string">&#x27;hrsh7th/cmp-nvim-lsp&#x27;</span>,<br>        <span class="hljs-string">&#x27;hrsh7th/cmp-buffer&#x27;</span>,<br>        <span class="hljs-string">&#x27;hrsh7th/cmp-path&#x27;</span>,<br>        <span class="hljs-string">&#x27;hrsh7th/cmp-cmdline&#x27;</span>,<br>        <span class="hljs-string">&#x27;hrsh7th/nvim-cmp&#x27;</span>,<br>    &#125;,<br>    <span class="hljs-built_in">config</span> = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span></span><br>      <span class="hljs-keyword">local</span> cmp = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;cmp&#x27;</span>)<br><br>      cmp.setup(&#123;<br>        sources = &#123;<br>          &#123;name = <span class="hljs-string">&#x27;nvim_lsp&#x27;</span>&#125;,<br>        &#125;,<br><br>        snippet = &#123;<br>          expand = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(args)</span></span><br>            <span class="hljs-comment">-- vim.snippet.expand(args.body)</span><br>            <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;luasnip&#x27;</span>).lsp_expand(args.body)<br>          <span class="hljs-keyword">end</span>,<br>        &#125;,<br><br>        mapping = cmp.mapping.preset.<span class="hljs-built_in">insert</span>(&#123;<br>          [<span class="hljs-string">&#x27;&lt;C-Space&gt;&#x27;</span>] = cmp.mapping.complete(),<br>          [<span class="hljs-string">&#x27;&lt;C-u&gt;&#x27;</span>] = cmp.mapping.scroll_docs(<span class="hljs-number">-4</span>),<br>          [<span class="hljs-string">&#x27;&lt;C-d&gt;&#x27;</span>] = cmp.mapping.scroll_docs(<span class="hljs-number">4</span>),<br>          [<span class="hljs-string">&#x27;&lt;CR&gt;&#x27;</span>] = cmp.mapping.confirm(&#123;<span class="hljs-built_in">select</span> = <span class="hljs-literal">false</span>&#125;),<br>          <span class="hljs-comment">-- [&#x27;&lt;Tab&gt;&#x27;] = cmp.mapping.select_next_item(&#123;select = false&#125;),</span><br>          <span class="hljs-comment">-- [&#x27;&lt;S-Tab&gt;&#x27;] = cmp.mapping.select_prev_item(&#123;select = false&#125;),</span><br>          <span class="hljs-comment">-- Super tab</span><br>         [<span class="hljs-string">&#x27;&lt;Tab&gt;&#x27;</span>] = cmp.mapping(<span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(fallback)</span></span><br>           <span class="hljs-keyword">local</span> luasnip = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;luasnip&#x27;</span>)<br>           <span class="hljs-keyword">local</span> col = vim.fn.col(<span class="hljs-string">&#x27;.&#x27;</span>) - <span class="hljs-number">1</span><br><br>           <span class="hljs-keyword">if</span> cmp.visible() <span class="hljs-keyword">then</span><br>             cmp.select_next_item(&#123;behavior = <span class="hljs-string">&#x27;select&#x27;</span>&#125;)<br>           <span class="hljs-keyword">elseif</span> luasnip.expand_or_locally_jumpable() <span class="hljs-keyword">then</span><br>             luasnip.expand_or_jump()<br>           <span class="hljs-keyword">elseif</span> col == <span class="hljs-number">0</span> <span class="hljs-keyword">or</span> vim.fn.getline(<span class="hljs-string">&#x27;.&#x27;</span>):<span class="hljs-built_in">sub</span>(col, col):<span class="hljs-built_in">match</span>(<span class="hljs-string">&#x27;%s&#x27;</span>) <span class="hljs-keyword">then</span><br>             fallback()<br>           <span class="hljs-keyword">else</span><br>             cmp.complete()<br>           <span class="hljs-keyword">end</span><br>         <span class="hljs-keyword">end</span>, &#123;<span class="hljs-string">&#x27;i&#x27;</span>, <span class="hljs-string">&#x27;s&#x27;</span>&#125;),<br><br>         <span class="hljs-comment">-- Super shift tab</span><br>         [<span class="hljs-string">&#x27;&lt;S-Tab&gt;&#x27;</span>] = cmp.mapping(<span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(fallback)</span></span><br>           <span class="hljs-keyword">local</span> luasnip = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;luasnip&#x27;</span>)<br><br>           <span class="hljs-keyword">if</span> cmp.visible() <span class="hljs-keyword">then</span><br>             cmp.select_prev_item(&#123;behavior = <span class="hljs-string">&#x27;select&#x27;</span>&#125;)<br>           <span class="hljs-keyword">elseif</span> luasnip.locally_jumpable(<span class="hljs-number">-1</span>) <span class="hljs-keyword">then</span><br>             luasnip.jump(<span class="hljs-number">-1</span>)<br>           <span class="hljs-keyword">else</span><br>             fallback()<br>           <span class="hljs-keyword">end</span><br>         <span class="hljs-keyword">end</span>, &#123;<span class="hljs-string">&#x27;i&#x27;</span>, <span class="hljs-string">&#x27;s&#x27;</span>&#125;),<br><br>        &#125;),<br><br>        formatting = &#123;<br>          fields = &#123;<span class="hljs-string">&#x27;abbr&#x27;</span>, <span class="hljs-string">&#x27;kind&#x27;</span>, <span class="hljs-string">&#x27;menu&#x27;</span>&#125;,<br>          <span class="hljs-built_in">format</span> = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;lspkind&#x27;</span>).cmp_format(&#123;<br>            mode = <span class="hljs-string">&#x27;symbol_text&#x27;</span>, <span class="hljs-comment">-- show only symbol annotations</span><br>            maxwidth = <span class="hljs-number">50</span>, <span class="hljs-comment">-- prevent the popup from showing more than provided characters</span><br>            ellipsis_char = <span class="hljs-string">&#x27;...&#x27;</span>, <span class="hljs-comment">-- when popup menu exceed maxwidth, the truncated part would show ellipsis_char instead</span><br>          &#125;)<br>        &#125;,<br><br>        window = &#123;<br>          completion = cmp.<span class="hljs-built_in">config</span>.window.bordered(),<br>          documentation = cmp.<span class="hljs-built_in">config</span>.window.bordered(),<br>        &#125;,<br><br>      &#125;)<br>    <span class="hljs-keyword">end</span><br>  &#125;<br><br></code></pre></td></tr></table></figure>
+<p><code>luaship.lua</code>  </p>
+<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs Lua"><span class="hljs-keyword">return</span> &#123;<br>	<span class="hljs-string">&quot;L3MON4D3/LuaSnip&quot;</span>,<br>	<span class="hljs-comment">-- follow latest release.</span><br>	version = <span class="hljs-string">&quot;v2.*&quot;</span>, <span class="hljs-comment">-- Replace &lt;CurrentMajor&gt; by the latest released major (first number of latest release)</span><br>	<span class="hljs-comment">-- install jsregexp (optional!).</span><br>	build = <span class="hljs-string">&quot;make install_jsregexp&quot;</span><br>&#125;<br></code></pre></td></tr></table></figure>
+<p>其中我替换了一个快捷键<br><code>LSP</code>中的<code>K</code>因为我和<code>Keymaps</code>的配置冲突，将其换成了<code>gk</code><br>除此之外使用了<code>Super Tab</code>和<code>Enter</code>来选择自动补全项  </p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Neovim 从Vimscript向Lua的迁移</div>
+      <div>http://planetarium1001.github.io/2024/11/17/2024-11-17_19:30:40_Neovim_从Vimscript向Lua的迁移/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>Author</div>
+          <div>Planetarium</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>Posted on</div>
+          <div>November 17, 2024</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>Licensed under</div>
+          <div>
+            
+              
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by-nc-nd/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - Attribution">
+                    <i class="iconfont icon-cc-by"></i>
+                  </span>
+                </a>
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by-nc-nd/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="NC - Non-commercial">
+                    <i class="iconfont icon-cc-nc"></i>
+                  </span>
+                </a>
+              
+                <a class="print-no-link" target="_blank" href="https://creativecommons.org/licenses/by-nc-nd/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="ND - No derivative works">
+                    <i class="iconfont icon-cc-nd"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/11/14/2024-11-14_00:51:50_The%20Chain%20-%20Ingrid%20Michaelson/" title="The Chain - Ingrid Michaelson">
+                        <span class="hidden-mobile">The Chain - Ingrid Michaelson</span>
+                        <span class="visible-mobile">Next</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  
+  
+    <article id="comments" lazyload>
+      
+    <div id="giscus" class="giscus"></div>
+    <script type="text/javascript">
+      Fluid.utils.loadComments('#giscus', function() {
+        var options = {"repo":"planetarium1001/planetarium1001.github.io","repo-id":"R_kgDONJBucw","category":"Q&A","category-id":"DIC_kwDONJBuc84Cj6uq","theme-light":"light","theme-dark":"dark_dimmed","mapping":"pathname","reactions-enabled":1,"emit-metadata":0,"input-position":"top","lang":"en"};
+        var attributes = {};
+        for (let option in options) {
+          if (!option.startsWith('theme-')) {
+            var key = option.startsWith('data-') ? option : 'data-' + option;
+            attributes[key] = options[option];
+          }
+        }
+        var light = 'light';
+        var dark = 'dark_dimmed';
+        window.GiscusThemeLight = light;
+        window.GiscusThemeDark = dark;
+        attributes['data-theme'] = document.documentElement.getAttribute('data-user-color-scheme') === 'dark' ? dark : light;
+        for (let attribute in attributes) {
+          var value = attributes[attribute];
+          if (value === undefined || value === null || value === '') {
+            delete attributes[attribute];
+          }
+        }
+        var s = document.createElement('script');
+        s.setAttribute('src', 'https://giscus.app/client.js');
+        s.setAttribute('crossorigin', 'anonymous');
+        for (let attribute in attributes) {
+          s.setAttribute(attribute, attributes[attribute]);
+        }
+        var ss = document.getElementsByTagName('script');
+        var e = ss.length > 0 ? ss[ss.length - 1] : document.head || document.documentElement;
+        e.parentNode.insertBefore(s, e.nextSibling);
+      });
+    </script>
+    <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+    </article>
+  
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>Table of Contents</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  <script>
+  Fluid.utils.createScript('https://lib.baomitu.com/mermaid/8.14.0/mermaid.min.js', function() {
+    mermaid.initialize({"theme":"default"});
+
+    Fluid.utils.listenDOMLoaded(function() {
+      Fluid.events.registerRefreshCallback(function() {
+        if ('mermaid' in window) {
+          mermaid.init();
+        }
+      });
+    });
+  });
+</script>
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">Search</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">Keyword</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://github.com/planetarium1001" target="_blank" rel="nofollow noopener"><span>Planetarium - Github</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="busuanzi_container_site_pv" style="display: none">
+        Views: 
+        <span id="busuanzi_value_site_pv"></span>
+        
+      </span>
+    
+    
+      <span id="busuanzi_container_site_uv" style="display: none">
+        Visitors: 
+        <span id="busuanzi_value_site_uv"></span>
+        
+      </span>
+    
+    
+
+  
+
+</div>
+
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/5.0.0/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">Blog works best with JavaScript enabled</div>
+  </noscript>
+</body>
+</html>
