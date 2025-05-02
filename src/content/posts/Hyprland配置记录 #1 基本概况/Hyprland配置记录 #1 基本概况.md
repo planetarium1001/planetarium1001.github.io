@@ -5,7 +5,7 @@ description: 简短的Hyprland配置记录
 image: https://raw.githubusercontent.com/hyprwm/Hyprland/main/assets/header.svg
 tags: [Linux, Wayland, Hyprland]
 category: Linux
-draft: true
+draft: false
 ---
 ## 前言
 之前一直使用的是suckless的dwm[^1]，也是一种机缘巧合，突发奇想转到Wayland下试一试，之前一直都是在使用Xorg下的窗口管理器/桌面。  
