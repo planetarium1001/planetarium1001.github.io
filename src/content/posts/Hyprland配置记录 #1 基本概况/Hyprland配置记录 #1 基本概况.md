@@ -33,8 +33,35 @@ draft: false
 - WINDOWS AND WORKSPACES
 
 其中，我们最需要关注的是`KEYBINDINGS`、`ENVIRONMENT`、`AUTOSTART`、`MY PROGRAMS`，这四个分别代表`按键绑定`、`环境变量设置`、`自启动设置`、`自定义应用`，关于这个自定义应用后面在详细解释，剩余的这些部分除去`PERMISSIONS`之外都和外观有关系。  
+在这里，我并没有采用单一文件的形式，我把这些内容分散到了几个文件中，使用`source`来引入配置文件。  
+我的文件结构如下
+```
+hypr/
+├── config
+│   ├── appearance.conf
+│   ├── autostart.conf
+│   ├── environment.conf
+│   ├── inputs.conf
+│   ├── keybindings.conf
+│   ├── monitors.conf
+│   └── rules.conf
+└── hyprland.conf
 
-下一篇将记录关于按键绑定的部分。
+2 directories, 8 files
+```
+其中`hyprland.conf`文件仅用于引入配置文件。内容如下：
+```
+source = ~/.config/hypr/config/monitors.conf
+source = ~/.config/hypr/config/autostart.conf
+source = ~/.config/hypr/config/environment.conf
+source = ~/.config/hypr/config/appearance.conf
+source = ~/.config/hypr/config/inputs.conf
+source = ~/.config/hypr/config/keybindings.conf
+source = ~/.config/hypr/config/rules.conf
+```
+这样我觉得会更加清晰简洁一些。
+
+下一篇将记录关于按键绑定的部分，也就是关于`keybindings.conf`文件。
 
 [^1]: https://dwm.suckless.org/
 [^2]: https://wiki.archlinux.org/title/Wayland#Dynamic
